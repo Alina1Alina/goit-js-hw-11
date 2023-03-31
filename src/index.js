@@ -17,21 +17,25 @@ const refs = {
 refs.form.addEventListener('submit', onSearchQuery);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
 
-refs.loadMoreBtn.style.display = 'none';
+// refs.loadMoreBtn.style.display = 'none';
 
 async function onSearchQuery(e) {
   e.preventDefault();
 
+  refs.loadMoreBtn.classList.remove('hide')
+
   clearGallery();
   apiService.query = e.currentTarget.elements.searchQuery.value;
   if (!apiService.query) {
-    refs.loadMoreBtn.style.display = 'none';
+    // refs.loadMoreBtn.style.display = 'none';
+    refs.loadMoreBtn.classList.add('hide')
     refs.gallery.innerHTML = '';
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
     return;
-  }
+    }
+    
 
   apiService.resetPage();
 
@@ -42,20 +46,39 @@ async function onSearchQuery(e) {
       refs.loadMoreBtn.style.display = 'none';
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
-      );
+        );
+        
       return;
     }
 
+
+    
+
     renderCards(data.hits);
     lightbox = new SimpleLightbox('.gallery__item', { captionDelay: 250 });
-    if (data.hits.length) {
-      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+      if (data.totalHits) {
+        
+        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+      
+        
     }
+
+ if (refs.gallery.children.length >= data.totalHits ) {
+        console.log(1);
+      
+      refs.loadMoreBtn.classList.add('hide');
+      Notiflix.Notify.info(
+        "We're sorry, but you've reached the end of search results."
+      );
+    }
+
+
   } catch (error) {
     console.log(error);
   }
 
-  refs.loadMoreBtn.style.display = 'block';
+  // refs.loadMoreBtn.style.display = 'block';
+
 }
 
 async function onLoadMore() {
@@ -64,8 +87,9 @@ async function onLoadMore() {
 
     renderCards(data.hits);
     lightbox.refresh();
-    if (refs.gallery.children.length === data.totalHits) {
-      refs.loadMoreBtn.style.display = 'none';
+      if (refs.gallery.children.length >= data.totalHits ) {
+      refs.loadMoreBtn.classList.add('hide')
+      // refs.loadMoreBtn.style.display = 'none';
       Notiflix.Notify.info(
         "We're sorry, but you've reached the end of search results."
       );
